@@ -5,13 +5,28 @@ export interface Task {
   id: number;
   content: string;
   isCompleted: boolean
+  createdAt: Date
 }
 
 interface TaskListProps {
   tasks: Task[]
+  onDeleteTask: (taskId: number) => void
+  onToggleTaskComplete: (taskId: number) => void
 }
 
-export function TaskList({ tasks }: TaskListProps) {
+export function TaskList({ tasks, onDeleteTask, onToggleTaskComplete }: TaskListProps) {
+  function handleDeleteTask(taskId: number) {
+    const mustDelete = confirm('Você realmente deseja excluir esta tarefa?')
+    if (mustDelete) {
+      onDeleteTask(taskId)
+    }
+  }
+
+  function handleToggleTaskComplete(taskId: number) {
+    onToggleTaskComplete(taskId)
+  }
+
+  const orderedTasks = tasks.sort((taskA, taskB) => taskB.createdAt.getTime() - taskA.createdAt.getTime())
   const createdTasksCount = tasks.length
   const completedTasksCount = tasks.filter(task => task.isCompleted).length
   const hasTasks = createdTasksCount > 0
@@ -32,22 +47,40 @@ export function TaskList({ tasks }: TaskListProps) {
 
       {
         hasTasks ? (
-          <div className={styles.listContainer}>
-            {tasks.map(task => (
+          <div>
+            {orderedTasks.map(task => (
               <div key={task.id} className={styles.taskContainer}>
                 {
-                  !task.isCompleted ?
-                    <Circle className={styles.taskUncheckedIcon} size={24} />
-                    : <CheckCircle weight="fill" className={styles.taskCheckedIcon} size={24} />
+                  task.isCompleted ?
+                    (
+                      <button
+                        onClick={() => handleToggleTaskComplete(task.id)}
+                        className={styles.iconButton}
+                        title="Desmarcar"
+                      >
+                        <CheckCircle className={styles.taskCheckedIcon} weight="fill" size={24} />
+                      </button>
+                    )
+                    : (
+                      <button
+                        onClick={() => handleToggleTaskComplete(task.id)}
+                        className={styles.iconButton} 
+                        title="Marcar como concluído"
+                      >
+                        <Circle className={styles.taskUncheckedIcon} size={24} />
+                      </button>
+                    )
                 }
                 <div className={`${styles.taskContent} ${task.isCompleted ? styles.taskContentCompleted : ''}`}>
                   {task.content}
                 </div>
-                <div className={styles.taskActions}>
-                  <button className={styles.deleteButton} title="Deletar tarefa">
-                    <Trash size={24} />
-                  </button>
-                </div>
+                <button
+                  onClick={() => handleDeleteTask(task.id)}
+                  className={styles.deleteButton}
+                  title="Deletar tarefa"
+                >
+                  <Trash size={24} />
+                </button>
               </div>
             ))}
           </div>

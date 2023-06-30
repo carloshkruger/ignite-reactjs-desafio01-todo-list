@@ -15,6 +15,7 @@
   border: 1px solid var(--gray-700);
   border-radius: 8px;
   flex: 1;
+  width: 100%;
 }
 
 .addTaskInput::placeholder {
@@ -40,6 +41,11 @@
   margin-left: 0.5rem;
 }
 
-.createTaskButton:hover {
+.createTaskButton:hover:not(:disabled) {
   background: var(--blue);
+}
+
+.createTaskButton:disabled {
+  opacity: 0.7;
+  cursor: default;
 }
